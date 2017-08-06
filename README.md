@@ -1,6 +1,10 @@
 # WTimer
 WTimer is a desktop application timer for applying Pomodoro Technique.(Qt, C++)
 
-![WTimer screenshot](https://raw.github.com/AlexPutz/WTimer/master/screenshots/widget.png)
-![WTimer screenshot](https://raw.github.com/AlexPutz/WTimer/master/screenshots/settings.png)
 
+
+## Legal Information ##
+
+[Pomodoro Technique®](http://pomodorotechnique.com) and [Pomodoro™](http://pomodorotechnique.com)
+are registered and filed trademarks owned by Francesco Cirillo. WTimer is not affiliated by,
+associated with nor endorsed by Francesco Cirillo.
