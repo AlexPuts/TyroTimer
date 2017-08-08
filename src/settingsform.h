@@ -23,6 +23,16 @@ public:
     bool sNotification;
     bool sPopUp;
     bool sFrameless;
+
+    bool sAlertBubbleStart;
+    bool sAlertBubbleEnd;
+    bool sportableConfig;
+    bool shighDpi;
+    bool skeepJournal;
+    bool skeepAlertAfterBreak;
+    bool skeepWindowPos;
+    bool sstartMinimized;
+
     QSettings* pst;
     ~settingsForm();
 public slots:

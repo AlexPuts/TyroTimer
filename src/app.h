@@ -7,18 +7,18 @@ class App : public QApplication
 {
 Q_OBJECT
 private:
-    QSettings* m_pSettings;
+    QSettings* pSettings;
 public:
     App(int& argc,
         char** argv,
         const QString& strOrg,
         const QString& strAppName):
         QApplication(argc,argv),
-        m_pSettings(0)
+        pSettings(0)
     {
         setOrganizationName(strOrg);
         setApplicationName(strAppName);
-        m_pSettings = new QSettings(strOrg, strAppName,this);
+        pSettings = new QSettings(strOrg, strAppName,this);
     }
     static App* theApp()
     {
@@ -26,7 +26,7 @@ public:
     }
     QSettings* settings()
     {
-        return m_pSettings;
+        return pSettings;
     }
 };
 

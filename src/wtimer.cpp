@@ -9,6 +9,49 @@
 #include "src/app.h"
 #include "src/settingsform.h"
 #include <QSound>
+#include <QDebug>
+
+
+
+struct SettingsStruct
+{
+    QTime  timeValue;
+    QTime WTimerDuration;
+    QTime breakDuration;
+
+    bool Process;
+    bool Break;
+    bool SessionComplete;
+    bool BreakComplete;
+    bool Notification;
+    bool Frameless;
+    bool PopUp;
+
+    bool AlertBubbleStart; //
+    bool AlertBubbleEnd; //
+    bool portableConfig;
+    bool highDpi;
+    bool keepJournal;
+    bool keepAlertAfterBreak;
+    bool keepWindowPos;  //
+    bool startMinimized; //
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 WTimer::WTimer(QWidget *parent) :
@@ -18,6 +61,7 @@ WTimer::WTimer(QWidget *parent) :
     slotReadSettings();
     pst = App::theApp()->settings();
 
+    lastPos = new QPoint(0,0);
     soundBreak = new QSound(":sounds/break.wav");
     soundComplete = new QSound(":sounds/complete.wav");
     soundNotification = new QSound(":sounds/notification.wav");
@@ -65,12 +109,6 @@ WTimer::WTimer(QWidget *parent) :
             this,        SLOT(slotSettings())
             );
 
-    QAction* pactAbout=
-            new QAction("&About",this);
-    connect(pactAbout,SIGNAL(triggered()),
-            this,        SLOT(slotAbout())
-            );
-
     QAction* pactStatistics=
             new QAction("&Statistics",this);
     connect(pactStatistics,SIGNAL(triggered()),
@@ -79,27 +117,28 @@ WTimer::WTimer(QWidget *parent) :
 
     QAction* pactQuit = new QAction("&Quit",this);
     connect(pactQuit,SIGNAL(triggered()),qApp,SLOT(quit()));
+    if(keepWindowPos) connect(pactQuit,SIGNAL(triggered()),this,SLOT(slotSaveWinPos()));
+
     ui->start_stop->setAutoDefault(false);
     connect(ui->start_stop,SIGNAL(clicked()),this,SLOT(slotStartStop()));
 
-    m_ptrayIconMenu = new QMenu(this);
+    ptrayIconMenu = new QMenu(this);
 
-    m_ptrayIconMenu->addAction(pactStatistics);
-     m_ptrayIconMenu->addAction(pactAbout);
-    m_ptrayIconMenu->addAction(pactSettings);
-    m_ptrayIconMenu->addAction(pactShowHide);
-    m_ptrayIconMenu->addAction(pactQuit);
+    ptrayIconMenu->addAction(pactStatistics);
+
+    ptrayIconMenu->addAction(pactSettings);
+    ptrayIconMenu->addAction(pactShowHide);
+    ptrayIconMenu->addAction(pactQuit);
 
 
-    m_ptrayIcon = new QSystemTrayIcon(this);
-    m_ptrayIcon->setContextMenu(m_ptrayIconMenu);
-    m_ptrayIcon->setToolTip("System Tray");
+    ptrayIcon = new QSystemTrayIcon(this);
+    ptrayIcon->setContextMenu(ptrayIconMenu);
+    ptrayIcon->setToolTip("System Tray");
 
     slotChangeIcon();
 
     Settings = new settingsForm;
-    about = new About;
-    about->hide();
+
     connect(Settings,SIGNAL(saveSettings()), this, SLOT(slotReadSettings()));
     Settings->move((QApplication::desktop()->width()-this->width())/2,
                    (QApplication::desktop()->height()-this->height())/2);
@@ -107,8 +146,8 @@ WTimer::WTimer(QWidget *parent) :
      connect(pactSettings,SIGNAL(triggered()), Settings,SLOT(slotCheckSettings()));
 
 
-    m_ptrayIcon->show();
-    slotShowHide();
+    ptrayIcon->show();
+    if(!startMinimized)slotShowHide();
 
     Statistics = new statisticsDialog;
     Statistics->hide();
@@ -120,6 +159,7 @@ WTimer::WTimer(QWidget *parent) :
     hours = pst->value("hours").toDouble();
     sessions = pst->value("sessions").toInt();
 
+
 }
 
 WTimer::~WTimer()
@@ -127,35 +167,47 @@ WTimer::~WTimer()
     delete ui;
 }
 
+
 void WTimer::closeEvent()
 {
-    if(m_ptrayIcon->isVisible())
+    slotSaveWinPos();
+    if(ptrayIcon->isVisible())
     {
-        hide();
+      hide();
     }
+
 }
 void WTimer::slotShowHide()
 {
-    this->move((QApplication::desktop()->width()-this->width())-0,
+    int x = pst->value("xPos").toInt();
+    int y = pst->value("yPos").toInt();
+    QPoint pos(x,y);
+
+    if(keepWindowPos)
+    {
+        if(lastPos->x()!=0&&lastPos->y()!=0)
+        {
+            this->move(*lastPos);
+        }
+        else this->move(pos);
+    }
+
+    else this->move((QApplication::desktop()->width()-this->width())-0,
                (QApplication::desktop()->height()-this->height())-0);
     setVisible(!isVisible());
 }
 
 void WTimer::slotShowMessage()
 {
-    m_ptrayIcon->showMessage("For your information",
-                             "You have selected the "
-                             "\"Show Message!\"option",
-                             QSystemTrayIcon::Information,
-                             3000);
+
 }
 
 void::WTimer::slotChangeIcon()
 {
-    m_bIconSwitcher = !m_bIconSwitcher;
-    QString strPixmapName = m_bIconSwitcher ? ":/images/wtred.png"
+    IconSwitcher = !IconSwitcher;
+    QString strPixmapName = IconSwitcher ? ":/images/wtred.png"
                                             : ":/images/wtgreen.png";
-    m_ptrayIcon->setIcon(QPixmap(strPixmapName));
+    ptrayIcon->setIcon(QPixmap(strPixmapName));
 }
 
 void WTimer::slotStartStop()
@@ -166,6 +218,9 @@ void WTimer::slotStartStop()
     {
         ui->start_stop->setText("Stop");
         ptimer->start(1000);
+       if(AlertBubbleStart) ptrayIcon->showMessage("WTimer status:",
+                                 "Work session started.",
+                                 QSystemTrayIcon::Information,2200);
         if(Process)soundProcess->play();
     }
     else
@@ -186,8 +241,6 @@ void WTimer::slotStartStop()
 }
 void WTimer::slotSetDisplay()
 {
-    //change countdownd display, move progress bar
-    //move animation ?
     this->timeValue.setHMS(0,this->timeValue.addSecs(-1).minute(),this->timeValue.addSecs(-1).second());
     this->ui->timeLabel->setText(this->timeValue.toString());
     this->ui->progressBar->setValue(ui->progressBar->value()+1);
@@ -198,7 +251,9 @@ void WTimer::slotSetDisplay()
         {
             ptimer->stop();
             slotWTimerEnded();
-
+           if(AlertBubbleEnd) ptrayIcon->showMessage("WTimer status:",
+                                     "Work session completed.",
+                                     QSystemTrayIcon::Information,2200);
         }
         else
         {
@@ -216,6 +271,10 @@ void WTimer::slotSetDisplay()
             pst->setValue("breakHrs", breakHrs);
             breaks += 1;
             pst->setValue("breaks",breaks);
+
+           if(AlertBubbleEnd) ptrayIcon->showMessage("WTimer status:",
+                                     "Break completed.\n Get back to work!",
+                                     QSystemTrayIcon::Information,2200);
         }
     }
     else if (PopUp && this->timeValue.minute() ==1 &&this->timeValue.second() ==0)
@@ -243,7 +302,9 @@ void WTimer::slotWTimerEnded()
 void WTimer::slotTakeABreak()
 {
     timeValue = breakDuration;
-
+   if(AlertBubbleStart) ptrayIcon->showMessage("WTimer status:",
+                             "Break started.",
+                             QSystemTrayIcon::Information,2200);
     ui->progressBar->setMaximum(timeValue.minute()*60);
     ptimer->start(1000);
     if(Break)soundBreak->play();
@@ -290,41 +351,6 @@ void WTimer::slotReadSettings()
     {
         pst->setValue("breakDuration", 5*60);
     }
-    if(pst->value("soundInProcess").toBool()==0)
-    {
-        pst->setValue("soundInProcess", false);
-    }
-
-    if(pst->value("soundInBreak").toBool()==0)
-    {
-        pst->setValue("soundInBreak", false);
-    }
-
-    if(pst->value("soundInComplete").toBool()==0)
-    {
-        pst->setValue("soundInComplete", false);
-    }
-
-    if(pst->value("soundInBComplete").toBool()==0)
-    {
-        pst->setValue("soundInBComplete", false);
-    }
-
-    if(pst->value("Notification").toBool()==0)
-    {
-        pst->setValue("Notification", false);
-    }
-
-    if(pst->value("Frameless").toBool()==0)
-    {
-        pst->setValue("Frameless", false);
-    }
-
-    if(pst->value("PopUp").toBool()==0)
-    {
-        pst->setValue("PopUp", false);
-    }
-
 
     WTimerDuration = QTime(0,0,0);
     breakDuration = QTime(0,0,0);
@@ -339,15 +365,67 @@ void WTimer::slotReadSettings()
     Frameless = pst->value("Frameless").toBool();
     PopUp = pst->value("PopUp").toBool();
 
+    AlertBubbleStart = pst->value("AlertBubbleStart").toBool();
+    AlertBubbleEnd = pst->value("AlertBubbleEnd").toBool();
+    portableConfig = pst->value("portableConfig").toBool();
+    highDpi = pst->value("highDpi").toBool();
+    keepJournal = pst->value("keepJournal").toBool();
+    keepAlertAfterBreak = pst->value("keepAlertAfterBreak").toBool();
+    keepWindowPos = pst->value("keepWindowPos").toBool();
+    startMinimized = pst->value("startMinimized").toBool();
+
 }
 
-void WTimer::slotAbout()
-{
-    about->show();
-}
 
 void WTimer::slotStatistics()
 {
     emit signalCheckStatistics();
     this->Statistics->show();
+}
+
+
+void WTimer::slotSaveWinPos()
+{
+    pst->setValue("xPos", this->x());
+    pst->setValue("yPos", this->y());
+}
+
+void WTimer::slotReadLocalSettings()
+{
+
+}
+void WTimer::moveEvent()
+{
+    *lastPos = pos();
+}
+
+void WTimer::slotSaveLocalSettings()
+{
+
+}
+void WTimer::slotFillSettingsStruct()
+{
+    struct SettingsStruct settingsSt;
+    settingsSt.WTimerDuration = QTime(0,0,0);
+    settingsSt.breakDuration = QTime(0,0,0);
+    settingsSt.WTimerDuration=WTimerDuration.addSecs(pst->value("WTimerDuration").toInt());
+    settingsSt.breakDuration=breakDuration.addSecs(pst->value("breakDuration").toInt());
+
+    settingsSt.Process = pst->value("soundInProcess").toBool();
+    settingsSt.Break = pst->value("soundInBreak").toBool();
+    settingsSt.SessionComplete = pst->value("soundInComplete").toBool();
+    settingsSt.BreakComplete = pst->value("soundInBComplete").toBool();
+    settingsSt.Notification = pst->value("soundInBComplete").toBool();
+    settingsSt.Frameless = pst->value("Frameless").toBool();
+    settingsSt.PopUp = pst->value("PopUp").toBool();
+
+    settingsSt.AlertBubbleStart = pst->value("AlertBubbleStart").toBool();
+    settingsSt.AlertBubbleEnd = pst->value("AlertBubbleEnd").toBool();
+    settingsSt.portableConfig = pst->value("portableConfig").toBool();
+    settingsSt.highDpi = pst->value("highDpi").toBool();
+    settingsSt.keepJournal = pst->value("keepJournal").toBool();
+    settingsSt.keepAlertAfterBreak = pst->value("keepAlertAfterBreak").toBool();
+    settingsSt.keepWindowPos = pst->value("keepWindowPos").toBool();
+    settingsSt.startMinimized = pst->value("startMinimized").toBool();
+
 }

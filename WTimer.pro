@@ -28,20 +28,17 @@ SOURCES += \
         src/main.cpp \
         src/wtimer.cpp \
     src/settingsform.cpp \
-    src/about.cpp \
     src/statisticsdialog.cpp
 
 HEADERS += \
         src/wtimer.h \
     src/app.h \
     src/settingsform.h \
-    src/about.h \
     src/statisticsdialog.h
 
 FORMS += \
         src/wtimer.ui \
     src/settingsform.ui \
-    src/about.ui \
     src/statisticsdialog.ui
 
 RESOURCES += \

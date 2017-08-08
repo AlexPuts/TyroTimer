@@ -5,7 +5,6 @@
 #include <QTimer>
 #include <QTime>
 #include <QPushButton>
-#include "src/about.h"
 #include "src/settingsform.h"
 #include <QSound>
 #include "src/statisticsdialog.h"
@@ -44,15 +43,25 @@ public:
     bool Frameless;
     bool PopUp;
 
+
+    bool AlertBubbleStart; //
+    bool AlertBubbleEnd; //
+    bool portableConfig;
+    bool highDpi;
+    bool keepJournal;
+    bool keepAlertAfterBreak;
+    bool keepWindowPos;  //
+    bool startMinimized; //
+
     settingsForm* Settings;
     statisticsDialog* Statistics;
-    About* about;
+
 
     QSound* soundBreak;
     QSound* soundComplete;
     QSound* soundNotification;
     QSound* soundProcess;
-
+    QPoint* lastPos;
     double breakHrs;
     int breaks;
     double hours;
@@ -64,9 +73,11 @@ public:
 
 private:
     Ui::WTimer *ui;
-    QSystemTrayIcon* m_ptrayIcon;
-    QMenu* m_ptrayIconMenu;
-    bool m_bIconSwitcher;
+    QSystemTrayIcon* ptrayIcon;
+    QMenu* ptrayIconMenu;
+    bool IconSwitcher;
+
+    void moveEvent();
 protected:
     virtual void closeEvent();
 signals:
@@ -83,9 +94,11 @@ public slots:
     void slotSkipABreak();
     void slotSettings();
     void slotReadSettings();
-    void slotAbout();
     void slotStatistics();
-
+    void slotSaveWinPos();
+    void slotReadLocalSettings();
+    void slotSaveLocalSettings();
+    void slotFillSettingsStruct();
 private slots:
 
 };
