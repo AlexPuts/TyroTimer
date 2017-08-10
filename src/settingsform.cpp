@@ -28,7 +28,7 @@ settingsForm::settingsForm(QWidget *parent) :
     ui->sessionDurationComboBox->addItems(lstDuration);
     ui->breakDurationComboBox->addItems(lstBreak);
     slotCheckSettings();
-
+    journalPlText = ui->journalPlnTxt;
 
 }
 void settingsForm::slotSendSettings()
@@ -46,12 +46,14 @@ void settingsForm::slotSendSettings()
 
     sAlertBubbleStart = ui->bubbleAtStartChk->isChecked();
     sAlertBubbleEnd = ui->bubbleAtEndChk->isChecked();
-    sportableConfig = ui->portableConfigChk->isChecked();
+
     shighDpi = ui->highDpiChk->isChecked();
     skeepJournal = ui->keepJournalChk->isChecked();
     skeepAlertAfterBreak = ui->alertAftBreakChk->isChecked();
     skeepWindowPos = ui->keepWinPosChk->isChecked();
     sstartMinimized = ui->startMinChk->isChecked();
+
+    stimerControlsInTrMenu = ui->timerControlsInTrMenuChk->isChecked();
 
 
     pst->setValue("WTimerDuration", cDuration);
@@ -73,8 +75,9 @@ void settingsForm::slotSendSettings()
     pst->setValue("keepWindowPos", skeepWindowPos);
     pst->setValue("startMinimized", sstartMinimized);
 
+    pst->setValue("timerControlsInTrMenu",stimerControlsInTrMenu);
 
-
+    //qApp->exit(1337);
     emit saveSettings();
     this->hide();
 
@@ -89,12 +92,14 @@ void settingsForm::slotCheckSettings()
 
     ui->bubbleAtStartChk->setCheckState(Qt::Unchecked);
     ui->bubbleAtEndChk->setCheckState(Qt::Unchecked);
-    ui->portableConfigChk->setCheckState(Qt::Unchecked);
+
     ui->highDpiChk->setCheckState(Qt::Unchecked);
     ui->keepJournalChk->setCheckState(Qt::Unchecked);
     ui->alertAftBreakChk->setCheckState(Qt::Unchecked);
     ui->keepWinPosChk->setCheckState(Qt::Unchecked);
     ui->startMinChk->setCheckState(Qt::Unchecked);
+
+    ui->timerControlsInTrMenuChk->setCheckState(Qt::Unchecked);
 
 
 
@@ -110,12 +115,12 @@ void settingsForm::slotCheckSettings()
 
     if((pst->value("AlertBubbleStart").toBool())) ui->bubbleAtStartChk->setCheckState(Qt::Checked);
     if((pst->value("AlertBubbleEnd").toBool())) ui->bubbleAtEndChk->setCheckState(Qt::Checked);
-    if((pst->value("portableConfig").toBool())) ui->portableConfigChk->setCheckState(Qt::Checked);
     if((pst->value("highDpi").toBool())) ui->highDpiChk->setCheckState(Qt::Checked);
     if((pst->value("keepJournal").toBool())) ui->keepJournalChk->setCheckState(Qt::Checked);
     if((pst->value("keepAlertAfterBreak").toBool())) ui->alertAftBreakChk->setCheckState(Qt::Checked);
     if((pst->value("keepWindowPos").toBool())) ui->keepWinPosChk->setCheckState(Qt::Checked);
     if((pst->value("startMinimized").toBool())) ui->startMinChk->setCheckState(Qt::Checked);
+    if((pst->value("timerControlsInTrMenu").toBool())) ui->timerControlsInTrMenuChk->setCheckState(Qt::Checked);
 }
 
 settingsForm::~settingsForm()

@@ -6,5 +6,6 @@
         <file>sounds/complete.wav</file>
         <file>sounds/notification.wav</file>
         <file>sounds/process.wav</file>
+        <file>sounds/alert.wav</file>
     </qresource>
 </RCC>

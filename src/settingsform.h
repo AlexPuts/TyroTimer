@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QSettings>
+#include <QPlainTextEdit>
 
 namespace Ui {
 class settingsForm;
@@ -32,6 +33,8 @@ public:
     bool skeepAlertAfterBreak;
     bool skeepWindowPos;
     bool sstartMinimized;
+    QPlainTextEdit *journalPlText;
+    bool stimerControlsInTrMenu;
 
     QSettings* pst;
     ~settingsForm();

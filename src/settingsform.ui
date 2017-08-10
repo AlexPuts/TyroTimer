@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>358</width>
+    <width>440</width>
     <height>416</height>
    </rect>
   </property>
@@ -15,6 +15,12 @@
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>440</width>
+    <height>540</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Settings</string>
@@ -27,7 +33,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -103,21 +109,21 @@
                <item>
                 <widget class="QCheckBox" name="keepWinPosChk">
                  <property name="text">
-                  <string>Restore window position (after restart)</string>
+                  <string>Restore window position</string>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QCheckBox" name="highDpiChk">
                  <property name="text">
-                  <string>High DPI mode</string>
+                  <string>High DPI mode(after restart)</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QCheckBox" name="portableConfigChk">
+                <widget class="QCheckBox" name="timerControlsInTrMenuChk">
                  <property name="text">
-                  <string>Keep config portable (inside program folder)</string>
+                  <string>Show timer controls in tray menu</string>
                  </property>
                 </widget>
                </item>
@@ -137,36 +143,6 @@
               </spacer>
              </item>
             </layout>
-           </item>
-          </layout>
-         </item>
-         <item row="1" column="0">
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QPushButton" name="saveSettingspushButton">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>OK</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="cancelSettingspushButton">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Cancel</string>
-             </property>
-            </widget>
            </item>
           </layout>
          </item>
@@ -202,7 +178,7 @@
              <item>
               <widget class="QCheckBox" name="bubbleAtEndChk">
                <property name="text">
-                <string>Show message  at event end</string>
+                <string>Show message at event end</string>
                </property>
               </widget>
              </item>
@@ -290,18 +266,73 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_10">
        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QCheckBox" name="keepJournalChk">
+           <property name="text">
+            <string>Keep journal</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Save As...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <widget class="QPlainTextEdit" name="journalPlnTxt">
+           <property name="acceptDrops">
+            <bool>false</bool>
+           </property>
+           <property name="undoRedoEnabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_5">
+      <attribute name="title">
+       <string>Projects</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_16">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_15">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QCheckBox" name="keepJournalChk">
+            <widget class="QPushButton" name="pushButton_2">
              <property name="text">
-              <string>Keep journal</string>
+              <string>New</string>
              </property>
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer">
+            <spacer name="horizontalSpacer_2">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
@@ -314,16 +345,16 @@
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton">
+            <widget class="QPushButton" name="pushButton_3">
              <property name="text">
-              <string>Save As...</string>
+              <string>Delete</string>
              </property>
             </widget>
            </item>
           </layout>
          </item>
          <item>
-          <widget class="QListView" name="listView"/>
+          <widget class="QListWidget" name="listWidget"/>
          </item>
         </layout>
        </item>
@@ -346,7 +377,7 @@
            <property name="text">
             <string>WTimer is a free timer application for applying 
 Pomodoro Technique. 
- If you have a lot of work to get done WTimer is 
+If you have a lot of work to get done WTimer is 
 a way to go!</string>
            </property>
           </widget>
@@ -383,6 +414,36 @@ a way to go!</string>
       </layout>
      </widget>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPushButton" name="saveSettingspushButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>OK</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelSettingspushButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

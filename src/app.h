@@ -5,7 +5,7 @@
 
 class App : public QApplication
 {
-Q_OBJECT
+    Q_OBJECT
 private:
     QSettings* pSettings;
 public:
@@ -18,7 +18,9 @@ public:
     {
         setOrganizationName(strOrg);
         setApplicationName(strAppName);
-        pSettings = new QSettings(strOrg, strAppName,this);
+
+        pSettings = new QSettings (QString("configs/config.ini"), QSettings::IniFormat);
+
     }
     static App* theApp()
     {

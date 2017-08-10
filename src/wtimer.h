@@ -8,7 +8,8 @@
 #include "src/settingsform.h"
 #include <QSound>
 #include "src/statisticsdialog.h"
-
+#include <QPlainTextEdit>
+#include "src/logger.h"
 class QSystemTrayIcon;
 class QMenu;
 
@@ -24,6 +25,7 @@ public:
     explicit WTimer(QWidget *parent = 0);
     bool started;
     QTimer* ptimer;
+    QTimer* pStimer;
 
     QSettings* pst;
 
@@ -44,6 +46,15 @@ public:
     bool PopUp;
 
 
+
+    QAction* pactStartSession;
+    QAction* pactStopSession;
+    QAction* pactStartBreak;
+    QAction* pactStopBreak;
+    QAction* pactSkipBreak;
+
+
+
     bool AlertBubbleStart; //
     bool AlertBubbleEnd; //
     bool portableConfig;
@@ -53,6 +64,9 @@ public:
     bool keepWindowPos;  //
     bool startMinimized; //
 
+    bool haveLastPos;
+    bool timerControlsInTrMenu;
+
     settingsForm* Settings;
     statisticsDialog* Statistics;
 
@@ -61,13 +75,19 @@ public:
     QSound* soundComplete;
     QSound* soundNotification;
     QSound* soundProcess;
+    QSound* soundAlertAfterBreak;
+
+
     QPoint* lastPos;
+
     double breakHrs;
     int breaks;
     double hours;
     int sessions;
+    int xPos;
+    int yPos;
 
-
+    Logger *logger;
 
     ~WTimer();
 
@@ -77,7 +97,7 @@ private:
     QMenu* ptrayIconMenu;
     bool IconSwitcher;
 
-    void moveEvent();
+    void moveEvent(QMoveEvent *event);
 protected:
     virtual void closeEvent();
 signals:
@@ -85,7 +105,6 @@ signals:
     void signalCheckStatistics();
 public slots:
     void slotShowHide();
-    void slotShowMessage();
     void slotChangeIcon();
     void slotStartStop();
     void slotWTimerEnded();
@@ -96,9 +115,8 @@ public slots:
     void slotReadSettings();
     void slotStatistics();
     void slotSaveWinPos();
-    void slotReadLocalSettings();
-    void slotSaveLocalSettings();
-    void slotFillSettingsStruct();
+    void slotAlertAfterBreak();
+
 private slots:
 
 };
