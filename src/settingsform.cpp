@@ -1,7 +1,14 @@
 #include "src/settingsform.h"
 #include "ui_settingsform.h"
 #include "src/app.h"
+#include "src/wtimertask.h"
+
 #include <QSettings>
+#include <QDesktopServices>
+#include <QDir>
+#include <QMessageBox>
+#include <QDebug>
+
 const QString URL = "<a href = ""https://github.com/AlexPutz/WTimer"">https://github.com/AlexPutz/WTimer</a>";
 
 settingsForm::settingsForm(QWidget *parent) :
@@ -24,11 +31,19 @@ settingsForm::settingsForm(QWidget *parent) :
 
     connect(ui->saveSettingspushButton,SIGNAL(clicked()),this,SLOT(slotSendSettings()));
     connect(ui->cancelSettingspushButton,SIGNAL(clicked()),this,SLOT(hide()));
+    connect(ui->addTaskButton,SIGNAL(clicked()), this,SLOT(slotAddTask()));
+    connect(ui->deleteTaskButton,SIGNAL(clicked()), this,SLOT(slotDeleteTask()));
+    connect(ui->openJournalFolder,SIGNAL(clicked()), this, SLOT(slotOpenJournalFolder()));
 
     ui->sessionDurationComboBox->addItems(lstDuration);
     ui->breakDurationComboBox->addItems(lstBreak);
     slotCheckSettings();
     journalPlText = ui->journalPlnTxt;
+
+    tasks = new QVector <WtimerTask>;
+
+    slotReadTasks();
+    refreshTaskList();
 
 }
 void settingsForm::slotSendSettings()
@@ -47,14 +62,14 @@ void settingsForm::slotSendSettings()
     sAlertBubbleStart = ui->bubbleAtStartChk->isChecked();
     sAlertBubbleEnd = ui->bubbleAtEndChk->isChecked();
 
-    shighDpi = ui->highDpiChk->isChecked();
+
     skeepJournal = ui->keepJournalChk->isChecked();
     skeepAlertAfterBreak = ui->alertAftBreakChk->isChecked();
     skeepWindowPos = ui->keepWinPosChk->isChecked();
     sstartMinimized = ui->startMinChk->isChecked();
 
     stimerControlsInTrMenu = ui->timerControlsInTrMenuChk->isChecked();
-
+    suseTaskSystem = ui->useTasksChk->isChecked();
 
     pst->setValue("WTimerDuration", cDuration);
     pst->setValue("breakDuration", cBreak);
@@ -68,8 +83,8 @@ void settingsForm::slotSendSettings()
 
     pst->setValue("AlertBubbleStart", sAlertBubbleStart);
     pst->setValue("AlertBubbleEnd", sAlertBubbleEnd);
-    pst->setValue("portableConfig", sportableConfig);
-    pst->setValue("highDpi", shighDpi);
+
+
     pst->setValue("keepJournal", skeepJournal);
     pst->setValue("keepAlertAfterBreak", skeepAlertAfterBreak);
     pst->setValue("keepWindowPos", skeepWindowPos);
@@ -77,7 +92,10 @@ void settingsForm::slotSendSettings()
 
     pst->setValue("timerControlsInTrMenu",stimerControlsInTrMenu);
 
-    //qApp->exit(1337);
+    pst->setValue("useTaskSystem",suseTaskSystem);
+
+    //qApp->exit(10000);
+    ui->labelStatus->clear();
     emit saveSettings();
     this->hide();
 
@@ -93,13 +111,13 @@ void settingsForm::slotCheckSettings()
     ui->bubbleAtStartChk->setCheckState(Qt::Unchecked);
     ui->bubbleAtEndChk->setCheckState(Qt::Unchecked);
 
-    ui->highDpiChk->setCheckState(Qt::Unchecked);
     ui->keepJournalChk->setCheckState(Qt::Unchecked);
     ui->alertAftBreakChk->setCheckState(Qt::Unchecked);
     ui->keepWinPosChk->setCheckState(Qt::Unchecked);
     ui->startMinChk->setCheckState(Qt::Unchecked);
 
     ui->timerControlsInTrMenuChk->setCheckState(Qt::Unchecked);
+    ui->useTasksChk->setCheckState(Qt::Unchecked);
 
 
 
@@ -115,15 +133,158 @@ void settingsForm::slotCheckSettings()
 
     if((pst->value("AlertBubbleStart").toBool())) ui->bubbleAtStartChk->setCheckState(Qt::Checked);
     if((pst->value("AlertBubbleEnd").toBool())) ui->bubbleAtEndChk->setCheckState(Qt::Checked);
-    if((pst->value("highDpi").toBool())) ui->highDpiChk->setCheckState(Qt::Checked);
+
     if((pst->value("keepJournal").toBool())) ui->keepJournalChk->setCheckState(Qt::Checked);
     if((pst->value("keepAlertAfterBreak").toBool())) ui->alertAftBreakChk->setCheckState(Qt::Checked);
     if((pst->value("keepWindowPos").toBool())) ui->keepWinPosChk->setCheckState(Qt::Checked);
     if((pst->value("startMinimized").toBool())) ui->startMinChk->setCheckState(Qt::Checked);
     if((pst->value("timerControlsInTrMenu").toBool())) ui->timerControlsInTrMenuChk->setCheckState(Qt::Checked);
+    if((pst->value("useTaskSystem",suseTaskSystem).toBool())) ui->useTasksChk->setCheckState(Qt::Checked);
 }
 
 settingsForm::~settingsForm()
 {
     delete ui;
+}
+
+void settingsForm::slotAddTask()
+{
+    bool found = false;
+    if(ui->newTaskLedit->text().length() < 3)
+    {
+        ui->labelStatus->setText("The name of task have to be at least 3 characters long");
+        return;
+    }
+    for(int i = ui->taskList->count() - 1; i >= 0; --i)
+    {
+        if(ui->taskList->item(i)->text() == ui->newTaskLedit->text())
+        {
+            found = true;
+            ui->labelStatus->setText("The task has a duplicate and wasn't added");
+            break;
+        }
+    }
+    if(found == false)
+    {
+    ui->taskList->addItem(ui->newTaskLedit->text());
+    ui->labelStatus->setText("The task have been added...");
+    createTask(ui->newTaskLedit->text());
+    ui->newTaskLedit->clear();
+    }
+
+
+}
+void settingsForm::slotDeleteTask()
+{
+    if(ui->taskList->currentItem())
+    {
+     QMessageBox::StandardButton reply;
+     reply = QMessageBox::question(this, "Confirm deletion", "Are you sure you want to delete "
+                                   + ui->taskList->currentItem()->text() + " task?",
+                                   QMessageBox::Yes|QMessageBox::No);
+     if (reply == QMessageBox::Yes)
+     {
+
+       if(tasks->size()==1) ui->labelStatus->setText("Cannot delete the last task...");
+       else if(tasks->at(ui->taskList->row(ui->taskList->currentItem())).taskTitle == "Default")
+       {
+           ui->labelStatus->setText("Cannot delete the default task...");
+       }
+       else
+       {
+       ui->taskList->takeItem(ui->taskList->row(ui->taskList->currentItem()));
+       ui->labelStatus->setText("The task have been deleted...");
+       deleteTask();
+       slotWriteTasks();
+       refreshTaskList();
+       }
+     }
+    }
+}
+
+void settingsForm::slotOpenJournalFolder()
+{
+    QDir dir("journal");
+    QDesktopServices::openUrl(dir.path());
+}
+
+
+
+void settingsForm::slotReadTasks()
+{
+     QFile file("tasks");
+      if (!file.open(QIODevice::ReadWrite))
+      {
+              QMessageBox::information(this, tr("Unable to open file"),
+              file.errorString());
+              return;
+      }
+
+       QDataStream in(&file);
+       in.setVersion(QDataStream::Qt_5_9);
+       in >> *tasks;
+       qDebug() << "Inned tasks";
+       qDebug() << "Tasks size now:  " <<tasks->size();
+       if(tasks->size() == 0)
+       {
+           tasks->push_back(WtimerTask("Default"));
+       }
+       file.close();
+
+}
+
+void settingsForm::slotWriteTasks()
+{
+    QFile file("tasks");
+    if (!file.open(QIODevice::WriteOnly))
+    {
+             QMessageBox::information(this, tr("Unable to open file"),
+             file.errorString());
+             return;
+    }
+     QDataStream out(&file);
+     out.setVersion(QDataStream::Qt_5_9);
+     out <<*tasks;
+     qDebug() << "Outed tasks";
+     qDebug() << "Tasks size now:  " << tasks->size();
+     file.resize(file.pos());
+     file.close();
+
+}
+
+void settingsForm::createTask(QString s_taskTitle)
+{
+    WtimerTask newtask(s_taskTitle);
+    tasks->push_back(newtask);
+    qDebug() << "Added new task : " << newtask.taskTitle;
+    qDebug() << "Tasks total quantity : " << tasks->size();
+    slotWriteTasks();
+    refreshTaskList();
+}
+
+
+void settingsForm::deleteTask()
+{
+    if(tasks->size()==1) return;
+    QListWidgetItem *selected = ui->taskList->selectedItems().first();
+    if(selected)
+    {
+    int row = ui->taskList->row(selected);
+    tasks->erase(tasks->begin()+row);
+    qDebug() << "Deleted a task : ";
+    qDebug() << "Tasks total quantity : " << tasks->size();
+    slotWriteTasks();
+    refreshTaskList();
+    }
+}
+void settingsForm::refreshTaskList()
+{
+    ui->taskList->clear();
+    if(!tasks->isEmpty())
+    {
+    for(int i = 0; i < tasks->size(); i++)
+    {
+        ui->taskList->addItem(tasks->at(i).taskTitle);
+    }
+    }
 }

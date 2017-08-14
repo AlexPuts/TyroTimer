@@ -13,8 +13,9 @@ int main(int argc, char * argv[])
      App a(argc, argv,"My company", "My App");
      WTimer wtimer;
      QApplication::setQuitOnLastWindowClosed(false);
+     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // DPI support
      result = a.exec();
-  } while( result == 1337 );
+  } while( result == 10000 );
 
   return result;
 }

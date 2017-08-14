@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QSettings>
 #include <QPlainTextEdit>
+#include <QDesktopServices>
+#include "wtimertask.h"
 
 namespace Ui {
 class settingsForm;
@@ -27,24 +29,40 @@ public:
 
     bool sAlertBubbleStart;
     bool sAlertBubbleEnd;
-    bool sportableConfig;
-    bool shighDpi;
+
     bool skeepJournal;
     bool skeepAlertAfterBreak;
     bool skeepWindowPos;
     bool sstartMinimized;
     QPlainTextEdit *journalPlText;
     bool stimerControlsInTrMenu;
+    bool suseTaskSystem;
+
+    QVector <WtimerTask> * tasks;
 
     QSettings* pst;
+
+   void createTask(QString s_taskTitle);
+   void deleteTask();
+   void refreshTaskList();
+
     ~settingsForm();
 public slots:
     void slotSendSettings();
     void slotCheckSettings();
+    void slotAddTask();
+    void slotDeleteTask();
+    void slotOpenJournalFolder();
+    void slotReadTasks();
+    void slotWriteTasks();
+
+
+
 private:
     Ui::settingsForm *ui;
 signals:
     void saveSettings();
+    void signalAddTask(QString taskTitle);
 };
 
 #endif // SETTINGSFORM_H

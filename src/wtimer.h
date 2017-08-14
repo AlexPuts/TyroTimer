@@ -1,15 +1,20 @@
 #ifndef WTimer_H
 #define WTimer_H
+
+#include "src/logger.h"
+#include "src/statisticsdialog.h"
+#include "src/settingsform.h"
+#include "src/wtimertask.h"
+
 #include <QLabel>
 #include <QWidget>
 #include <QTimer>
 #include <QTime>
 #include <QPushButton>
-#include "src/settingsform.h"
 #include <QSound>
-#include "src/statisticsdialog.h"
 #include <QPlainTextEdit>
-#include "src/logger.h"
+#include <QComboBox>
+
 class QSystemTrayIcon;
 class QMenu;
 
@@ -35,6 +40,7 @@ public:
 
     QPushButton* takeABreak;
     QPushButton* skipABreak;
+    QComboBox* taskComboBox;
 
     bool isABreak;
     bool Process;
@@ -45,6 +51,7 @@ public:
     bool Frameless;
     bool PopUp;
 
+    QVector <WtimerTask> * tasks;
 
 
     QAction* pactStartSession;
@@ -57,8 +64,6 @@ public:
 
     bool AlertBubbleStart; //
     bool AlertBubbleEnd; //
-    bool portableConfig;
-    bool highDpi;
     bool keepJournal;
     bool keepAlertAfterBreak;
     bool keepWindowPos;  //
@@ -67,6 +72,7 @@ public:
     bool haveLastPos;
     bool timerControlsInTrMenu;
 
+    bool useTaskSystem;
     settingsForm* Settings;
     statisticsDialog* Statistics;
 
@@ -88,6 +94,8 @@ public:
     int yPos;
 
     Logger *logger;
+
+
 
     ~WTimer();
 
@@ -116,6 +124,8 @@ public slots:
     void slotStatistics();
     void slotSaveWinPos();
     void slotAlertAfterBreak();
+    void slotReadTasks();
+    void slotWriteTasks();
 
 private slots:
 

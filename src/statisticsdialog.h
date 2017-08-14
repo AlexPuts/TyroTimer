@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "src/app.h"
+#include "src/wtimertask.h"
 
 namespace Ui {
 class statisticsDialog;
@@ -20,6 +21,7 @@ public:
     int breaks;
     double hours;
     int sessions;
+
 
     ~statisticsDialog();
 

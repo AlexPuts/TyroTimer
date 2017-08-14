@@ -6,7 +6,7 @@ Logger::Logger(QObject *parent, QString fileName, QPlainTextEdit *editor) : QObj
  m_showDate = true;
 
  QDir dir;
- if( !dir.exists( "logs" ) ) dir.mkdir( "logs" );
+ if( !dir.exists( "journal" ) ) dir.mkdir( "journal" );
 
  if (!fileName.isEmpty())
  {

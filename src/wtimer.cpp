@@ -1,25 +1,30 @@
 #include "src/wtimer.h"
 #include "ui_wtimer.h"
 #include "src/logger.h"
+#include "src/app.h"
+#include "src/settingsform.h"
+#include "ui_settingsform.h"
+#include "src/wtimertask.h"
+
 
 #include <QMenu>
 #include <QSystemTrayIcon>
 #include <QDesktopWidget>
 #include <QtWidgets>
 #include <QSizePolicy>
-#include "src/app.h"
-#include "src/settingsform.h"
 #include <QSound>
 #include <QDebug>
-#include "ui_settingsform.h"
+
 
 
 WTimer::WTimer(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::WTimer)
 {
+    qRegisterMetaTypeStreamOperators<WtimerTask>("WtimerTask");
 
     pst = App::theApp()->settings();
+
     lastPos = new QPoint(0,0);
     soundBreak = new QSound(":sounds/break.wav");
     soundComplete = new QSound(":sounds/complete.wav");
@@ -33,7 +38,6 @@ WTimer::WTimer(QWidget *parent) :
 
     ui->setupUi(this);
 
-    Settings=nullptr;
     ui->start_stop->setText("Start");
     ptimer = new QTimer(this);
     pStimer = new QTimer(this);
@@ -44,6 +48,11 @@ WTimer::WTimer(QWidget *parent) :
     takeABreak = new QPushButton ("Take a break");
     takeABreak->setVisible(false);
     takeABreak->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Preferred);
+
+    taskComboBox = new QComboBox();
+    taskComboBox->setVisible(false);
+    taskComboBox->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Fixed);
+    ui->verticalLayout->addWidget(taskComboBox);
 
     ui->horizontalLayout->addWidget(takeABreak);
     connect(this->takeABreak,SIGNAL(clicked(bool)),this, SLOT(slotTakeABreak()));
@@ -105,6 +114,7 @@ WTimer::WTimer(QWidget *parent) :
 
     QAction* pactQuit = new QAction("&Quit",this);
     connect(pactQuit,SIGNAL(triggered()),this,SLOT(slotSaveWinPos()));
+    connect(pactQuit,SIGNAL(triggered()),this,SLOT(slotWriteTasks()));
     connect(pactQuit,SIGNAL(triggered()),qApp,SLOT(quit()));
 
 
@@ -156,6 +166,8 @@ WTimer::WTimer(QWidget *parent) :
 
     connect(this,SIGNAL(signalCheckStatistics()),Statistics,SLOT(slotCheckStatistics()));
 
+    tasks = Settings->tasks;
+
     slotReadSettings();
     if (Frameless) this->setWindowFlags(Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint);
     timeValue = WTimerDuration;
@@ -171,9 +183,12 @@ WTimer::WTimer(QWidget *parent) :
 
     Settings->journalPlText->setReadOnly(true);
 
-    QString fileName = "logs/WTimer log " +
+    QString fileName = "journal/WTimer log " +
             QDateTime::currentDateTime().toString("MM yyyy") + ".txt";
     logger = new Logger(this, fileName, Settings->journalPlText);
+
+
+
 
 
 }
@@ -187,7 +202,7 @@ WTimer::~WTimer()
 void WTimer::closeEvent()
 {
     slotSaveWinPos();
-
+    slotWriteTasks();
     if(ptrayIcon->isVisible())
     {
       hide();
@@ -237,6 +252,10 @@ void WTimer::slotStartStop()
 
     if(!ptimer->isActive())
     {
+        timeValue = WTimerDuration;
+        this->ui->timeLabel->setText(this->timeValue.toString());
+        ui->progressBar->setValue(0);
+
         ui->start_stop->setText("Stop"); 
         if(timerControlsInTrMenu)pactStopSession->setVisible(true);
         if(timerControlsInTrMenu)pactStartSession->setVisible(false);
@@ -268,6 +287,25 @@ void WTimer::slotStartStop()
 void WTimer::slotSetDisplay()
 {
     if(keepAlertAfterBreak) pStimer->start(60000);
+    (tasks->begin()+taskComboBox->currentIndex())->timeOnTask =
+            (tasks->begin()+taskComboBox->currentIndex())->timeOnTask.addSecs(1);
+    if((tasks->begin()+taskComboBox->currentIndex())->timeOnTask.hour() >0)
+    {
+        int minutes = (tasks->begin()+taskComboBox->currentIndex())->timeOnTask.minute();
+        int seconds = (tasks->begin()+taskComboBox->currentIndex())->timeOnTask.second();
+        (tasks->begin()+taskComboBox->currentIndex())->timeOnTask.setHMS(0,minutes,seconds,0);
+        (tasks->begin()+taskComboBox->currentIndex())->hoursOnTask++;
+    }
+    if((tasks->begin()+taskComboBox->currentIndex())->timeOnBreak.hour() >0)
+    {
+        int minutes = (tasks->begin()+taskComboBox->currentIndex())->timeOnBreak.minute();
+        int seconds = (tasks->begin()+taskComboBox->currentIndex())->timeOnBreak.second();
+        (tasks->begin()+taskComboBox->currentIndex())->timeOnBreak.setHMS(0,minutes,seconds,0);
+        (tasks->begin()+taskComboBox->currentIndex())->hoursOnBreak++;
+    }
+
+    qDebug() <<"Total time:"<< QString::number((tasks->begin()+taskComboBox->currentIndex())->hoursOnTask)+
+               ":"+(tasks->begin()+taskComboBox->currentIndex())->timeOnTask.toString("hh:mm:ss");
     this->timeValue.setHMS(0,this->timeValue.addSecs(-1).minute(),
                            this->timeValue.addSecs(-1).second());
     this->ui->timeLabel->setText(this->timeValue.toString());
@@ -421,13 +459,13 @@ void WTimer::slotReadSettings()
 
     AlertBubbleStart = pst->value("AlertBubbleStart").toBool();
     AlertBubbleEnd = pst->value("AlertBubbleEnd").toBool();
-    portableConfig = pst->value("portableConfig").toBool();
-    highDpi = pst->value("highDpi").toBool();
+
     keepJournal = pst->value("keepJournal").toBool();
     keepAlertAfterBreak = pst->value("keepAlertAfterBreak").toBool();
     keepWindowPos = pst->value("keepWindowPos").toBool();
     startMinimized = pst->value("startMinimized").toBool();
     timerControlsInTrMenu = pst->value("timerControlsInTrMenu").toBool();
+    useTaskSystem = pst->value("useTaskSystem").toBool();
 
     pst->setValue("WTimerDuration", WTimerDuration.minute()*60);
     pst->setValue("breakDuration", breakDuration.minute()*60);
@@ -441,16 +479,26 @@ void WTimer::slotReadSettings()
 
     pst->setValue("AlertBubbleStart", AlertBubbleStart);
     pst->setValue("AlertBubbleEnd", AlertBubbleEnd);
-    pst->setValue("portableConfig", portableConfig);
-    pst->setValue("highDpi", highDpi);
+
     pst->setValue("keepJournal", keepJournal);
     pst->setValue("keepAlertAfterBreak", keepAlertAfterBreak);
     pst->setValue("keepWindowPos", keepWindowPos);
     pst->setValue("startMinimized", startMinimized);
     pst->setValue("timerControlsInTrMenu", timerControlsInTrMenu);
+    pst->setValue("useTaskSystem", useTaskSystem);
 
     if(timerControlsInTrMenu)pactStartSession->setVisible(true);
     if(!timerControlsInTrMenu)pactStartSession->setVisible(false);
+    if(!useTaskSystem) taskComboBox->setVisible(false);
+    if(useTaskSystem && !tasks->empty())
+    {
+        taskComboBox->clear();
+        taskComboBox->setVisible(true);
+        for(int i = 0; i < tasks->size(); i++)
+        {
+            taskComboBox->addItem(tasks->at(i).taskTitle);
+        }
+    }
 }
 
 
@@ -485,8 +533,48 @@ void WTimer::slotAlertAfterBreak()
     {
     soundAlertAfterBreak->play();
     ptrayIcon->showMessage("WTimer says: ",
-                           "You are slacking... Get back here!",
-                            QSystemTrayIcon::Information,4200);
+                           "You are slacking... GET BACK TO WORK!",
+                            QSystemTrayIcon::Information,9200);
     }
+}
+
+
+
+void WTimer::slotReadTasks()
+{
+     QFile file("tasks");
+      if (!file.open(QIODevice::ReadWrite))
+      {
+              QMessageBox::information(this, tr("Unable to open file"),
+              file.errorString());
+              return;
+      }
+
+       QDataStream in(&file);
+       in.setVersion(QDataStream::Qt_5_9);
+       in >> *tasks;
+       qDebug() << "Inned tasks";
+       qDebug() << "Tasks size now:  " <<tasks->size();
+       file.close();
+
+}
+
+void WTimer::slotWriteTasks()
+{
+    QFile file("tasks");
+    if (!file.open(QIODevice::WriteOnly))
+    {
+             QMessageBox::information(this, tr("Unable to open file"),
+             file.errorString());
+             return;
+    }
+     QDataStream out(&file);
+     out.setVersion(QDataStream::Qt_5_9);
+     out <<*tasks;
+     qDebug() << "Outed tasks";
+     qDebug() << "Tasks size now:  " << tasks->size();
+     file.resize(file.pos());
+     file.close();
+
 }
 

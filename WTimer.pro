@@ -29,14 +29,16 @@ SOURCES += \
         src/wtimer.cpp \
     src/settingsform.cpp \
     src/statisticsdialog.cpp \
-    src/logger.cpp
+    src/logger.cpp \
+    src/wtimertask.cpp
 
 HEADERS += \
         src/wtimer.h \
     src/app.h \
     src/settingsform.h \
     src/statisticsdialog.h \
-    src/logger.h
+    src/logger.h \
+    src/wtimertask.h
 
 FORMS += \
         src/wtimer.ui \
