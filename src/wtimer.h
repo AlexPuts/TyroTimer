@@ -113,7 +113,7 @@ signals:
     void signalCheckStatistics();
 public slots:
     void slotShowHide();
-    void slotChangeIcon();
+    void slotUpdateIcon(int state,int number);
     void slotStartStop();
     void slotWTimerEnded();
     void slotSetDisplay();

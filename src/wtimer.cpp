@@ -144,9 +144,8 @@ WTimer::WTimer(QWidget *parent) :
 
     ptrayIcon = new QSystemTrayIcon(this);
     ptrayIcon->setContextMenu(ptrayIconMenu);
-    ptrayIcon->setToolTip("System Tray");
+    ptrayIcon->setToolTip("WTimer");
 
-    slotChangeIcon();
 
     Settings = new settingsForm;
 
@@ -155,9 +154,6 @@ WTimer::WTimer(QWidget *parent) :
                    (QApplication::desktop()->height()-this->height())/2);
 
      connect(pactSettings,SIGNAL(triggered()), Settings,SLOT(slotCheckSettings()));
-
-
-    ptrayIcon->show();
 
 
     Statistics = new statisticsDialog;
@@ -171,6 +167,8 @@ WTimer::WTimer(QWidget *parent) :
     if (Frameless) this->setWindowFlags(Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint);
     timeValue = WTimerDuration;
     ui->timeLabel->setText(timeValue.toString());
+    slotUpdateIcon(0,timeValue.minute());
+
     ui->progressBar->setValue(0);
     if(timerControlsInTrMenu)pactStartSession->setVisible(true);
     if(!startMinimized)slotShowHide();
@@ -185,10 +183,6 @@ WTimer::WTimer(QWidget *parent) :
     QString fileName = "journal/WTimer log " +
             QDateTime::currentDateTime().toString("MM yyyy") + ".txt";
     logger = new Logger(this, fileName, Settings->journalPlText);
-
-
-
-
 
 }
 
@@ -231,19 +225,31 @@ void WTimer::slotShowHide()
 
 
 
-void::WTimer::slotChangeIcon()
+void::WTimer::slotUpdateIcon(int state,int number)
 {
-    IconSwitcher = !IconSwitcher;
-    QString strPixmapName = IconSwitcher ? ":/images/wtred.png"
-                                            : ":/images/wtgreen.png";
-    QPixmap pixmap(strPixmapName);
-    QPainter painter(&pixmap);
-    painter.drawText(pixmap.rect(),Qt::AlignCenter,"Hi!");
+            /*QString strPixmapName = state ? ":/images/wtred.png"
+                                                : ":/images/wtgreen.png";*/
 
-    ptrayIcon->setIcon(QPixmap(strPixmapName));
+            QString strPixmapName =  ":/images/wtred.png";
+            QPixmap fopixmap(strPixmapName);
+            QPixmap pixmap( 64, 64 );
+            pixmap.fill(Qt::transparent);
+            QPainter painter(&pixmap);
+            painter.drawPixmap(0,0,64,64,fopixmap);
+            QString string;
+            string = QString::number(number);
+            painter.setFont(QFont("times",30, QFont::Bold));
+            QPen penHText(QColor("#000000"));
+            painter.setPen(penHText);
+            painter.drawText(0,0,64,64,Qt::AlignHCenter| Qt::AlignBottom , string);
 
+        ptrayIcon->setIcon(QIcon(pixmap));
 
+        ptrayIcon->show();
 }
+
+
+
 
 void WTimer::slotStartStop()
 {
@@ -254,6 +260,7 @@ void WTimer::slotStartStop()
     {
         timeValue = WTimerDuration;
         this->ui->timeLabel->setText(this->timeValue.toString());
+        slotUpdateIcon(0,timeValue.minute());
         ui->progressBar->setValue(0);
 
         ui->start_stop->setText("Stop"); 
@@ -276,10 +283,11 @@ void WTimer::slotStartStop()
         ptimer->stop();
         timeValue = WTimerDuration;
         this->ui->timeLabel->setText(this->timeValue.toString());
+        slotUpdateIcon(0,timeValue.minute());
         ui->progressBar->setValue(0);
         if(isABreak)
         {
-            slotChangeIcon();
+            slotUpdateIcon(0,WTimerDuration.minute());
             isABreak = false;
         }
     }
@@ -309,6 +317,7 @@ void WTimer::slotSetDisplay()
     this->timeValue.setHMS(0,this->timeValue.addSecs(-1).minute(),
                            this->timeValue.addSecs(-1).second());
     this->ui->timeLabel->setText(this->timeValue.toString());
+    slotUpdateIcon(0,timeValue.minute());
     this->ui->progressBar->setValue(ui->progressBar->value()+1);
     if(this->timeValue.minute() ==0 &&this->timeValue.second() ==0)
     {
@@ -334,7 +343,8 @@ void WTimer::slotSetDisplay()
 
             ui->progressBar->setValue(0);
             this->ui->timeLabel->setText(this->timeValue.toString());
-            slotChangeIcon();
+            slotUpdateIcon(0,timeValue.minute());
+            slotUpdateIcon(1,WTimerDuration.minute());
             isABreak = false;
 
             breakHrs += breakDuration.minute()/60.0f;
@@ -355,6 +365,7 @@ void WTimer::slotSetDisplay()
         setVisible(true);
         this->raise();
     }
+    slotUpdateIcon(0,timeValue.minute());
 };
 void WTimer::slotWTimerEnded()
 {
@@ -388,13 +399,14 @@ void WTimer::slotTakeABreak()
     ptimer->start(1000);
     if(Break)soundBreak->play();
     this->ui->timeLabel->setText(this->timeValue.toString());
+    slotUpdateIcon(0,timeValue.minute());
     ui->progressBar->setValue(0);
     this->takeABreak->setVisible(false);
     this->skipABreak->setVisible(false);
     ui->start_stop->setText("Stop");
     ui->start_stop->setVisible(true);
     isABreak = true;
-    slotChangeIcon();
+    slotUpdateIcon(1,WTimerDuration.minute());
 
     if(timerControlsInTrMenu)pactStartBreak->setVisible(false);
     if(timerControlsInTrMenu)pactStopBreak->setVisible(false);
@@ -422,7 +434,7 @@ void WTimer::slotSkipABreak()
     ui->progressBar->setMaximum(timeValue.minute()*60);
     ui->progressBar->setValue(0);
     this->ui->timeLabel->setText(this->timeValue.toString());
-
+    slotUpdateIcon(0,timeValue.minute());
 }
 void WTimer::slotSettings()
 {
@@ -592,3 +604,4 @@ void WTimer::delay()
     while (QTime::currentTime() < dieTime)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
+

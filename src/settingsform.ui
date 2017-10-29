@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>440</width>
-    <height>420</height>
+    <height>448</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -63,7 +63,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -340,7 +340,7 @@
      </widget>
      <widget class="QWidget" name="tab_5">
       <attribute name="title">
-       <string>Projects</string>
+       <string>Tasks</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
@@ -455,19 +455,23 @@
           <widget class="QLabel" name="label_5">
            <property name="font">
             <font>
-             <pointsize>9</pointsize>
+             <pointsize>10</pointsize>
             </font>
            </property>
            <property name="text">
-            <string>WTimer is a free timer application for applying 
-Pomodoro Technique. 
-If you have a lot of work to get done WTimer is a way to go! 
-Created and developed by Alex Putz</string>
+            <string>WTimer is a free timer application for applying Pomodoro 
+Technique.  If you have a lot of work to get done WTimer is a way 
+to go! Created and developed by Alex Putz.</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QLabel" name="label_6">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>For more information please visit:</string>
            </property>
@@ -475,6 +479,11 @@ Created and developed by Alex Putz</string>
          </item>
          <item>
           <widget class="QLabel" name="UrlLabel">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>URL</string>
            </property>
