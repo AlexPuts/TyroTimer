@@ -104,7 +104,7 @@ private:
     QSystemTrayIcon* ptrayIcon;
     QMenu* ptrayIconMenu;
     bool IconSwitcher;
-
+    void delay();
     void moveEvent(QMoveEvent *event);
 protected:
     virtual void closeEvent();
@@ -126,6 +126,7 @@ public slots:
     void slotAlertAfterBreak();
     void slotReadTasks();
     void slotWriteTasks();
+    void slotQuit();
 
 private slots:
 

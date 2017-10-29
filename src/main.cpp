@@ -10,7 +10,7 @@ int main(int argc, char * argv[])
 
   do
   {
-     App a(argc, argv,"My company", "My App");
+     App a(argc, argv,"AlexPutz", "WTimer");
      WTimer wtimer;
      QApplication::setQuitOnLastWindowClosed(false);
      QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // DPI support

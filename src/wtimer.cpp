@@ -26,11 +26,11 @@ WTimer::WTimer(QWidget *parent) :
     pst = App::theApp()->settings();
 
     lastPos = new QPoint(0,0);
-    soundBreak = new QSound(":sounds/break.wav");
-    soundComplete = new QSound(":sounds/complete.wav");
-    soundNotification = new QSound(":sounds/notification.wav");
-    soundProcess = new QSound(":sounds/process.wav");
-    soundAlertAfterBreak = new QSound(":sounds/alert.wav");
+    soundBreak = new QSound("sounds/break.wav");
+    soundComplete = new QSound("sounds/complete.wav");
+    soundNotification = new QSound("sounds/notification.wav");
+    soundProcess = new QSound("sounds/process.wav");
+    soundAlertAfterBreak = new QSound("sounds/alert.wav");
     soundProcess->setLoops(-1);
     soundBreak->setLoops(-1);
 
@@ -113,9 +113,8 @@ WTimer::WTimer(QWidget *parent) :
             );
 
     QAction* pactQuit = new QAction("&Quit",this);
-    connect(pactQuit,SIGNAL(triggered()),this,SLOT(slotSaveWinPos()));
-    connect(pactQuit,SIGNAL(triggered()),this,SLOT(slotWriteTasks()));
-    connect(pactQuit,SIGNAL(triggered()),qApp,SLOT(quit()));
+    connect(pactQuit,SIGNAL(triggered()),this,SLOT(slotQuit()));
+
 
 
     ui->start_stop->setAutoDefault(false);
@@ -209,6 +208,7 @@ void WTimer::closeEvent()
     }
 
 }
+
 void WTimer::slotShowHide()
 {
     int x = pst->value("xPos").toInt();
@@ -353,6 +353,7 @@ void WTimer::slotSetDisplay()
     {
         if(Notification)soundNotification->play();
         setVisible(true);
+        this->raise();
     }
 };
 void WTimer::slotWTimerEnded()
@@ -524,7 +525,6 @@ void WTimer::moveEvent(QMoveEvent *event)
     yPos = y();
     haveLastPos = true;
     qDebug() << "Keep window pos : " << keepWindowPos;
-    slotSaveWinPos();
 }
 
 void WTimer::slotAlertAfterBreak()
@@ -578,3 +578,17 @@ void WTimer::slotWriteTasks()
 
 }
 
+void WTimer::slotQuit()
+{
+    slotSaveWinPos();
+    delay();
+    slotWriteTasks();
+    qApp->quit();
+}
+
+void WTimer::delay()
+{
+    QTime dieTime= QTime::currentTime().addMSecs(500);
+    while (QTime::currentTime() < dieTime)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+}
