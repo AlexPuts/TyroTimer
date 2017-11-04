@@ -19,7 +19,7 @@ public:
         setOrganizationName(strOrg);
         setApplicationName(strAppName);
 
-        pSettings = new QSettings (QString("configs/config.ini"), QSettings::IniFormat);
+        pSettings = new QSettings (QString("config/config.ini"), QSettings::IniFormat);
 
     }
     static App* theApp()

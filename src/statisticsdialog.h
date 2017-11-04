@@ -17,10 +17,10 @@ public:
     explicit statisticsDialog(QWidget *parent = 0);
     QSettings* pst;
 
-    double breakHrs;
-    int breaks;
-    double hours;
-    int sessions;
+    qint32 breakHrs;
+    qint32 breaks;
+    qint32 hours;
+    qint32 sessions;
 
 
     ~statisticsDialog();

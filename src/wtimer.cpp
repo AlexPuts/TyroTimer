@@ -52,9 +52,12 @@ WTimer::WTimer(QWidget *parent) :
     taskComboBox = new QComboBox();
     taskComboBox->setVisible(false);
     taskComboBox->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Fixed);
+
     ui->verticalLayout->addWidget(taskComboBox);
 
     ui->horizontalLayout->addWidget(takeABreak);
+    lastActiveTask =  pst->value("lastActiveTask").toInt();
+    taskComboBox->setCurrentIndex(lastActiveTask);
     connect(this->takeABreak,SIGNAL(clicked(bool)),this, SLOT(slotTakeABreak()));
 
     skipABreak = new QPushButton ("Skip break");
@@ -106,11 +109,6 @@ WTimer::WTimer(QWidget *parent) :
             this,        SLOT(slotSettings())
             );
 
-    QAction* pactStatistics=
-            new QAction("&Statistics",this);
-    connect(pactStatistics,SIGNAL(triggered()),
-            this,        SLOT(slotStatistics())
-            );
 
     QAction* pactQuit = new QAction("&Quit",this);
     connect(pactQuit,SIGNAL(triggered()),this,SLOT(slotQuit()));
@@ -135,9 +133,6 @@ WTimer::WTimer(QWidget *parent) :
     pactStopBreak->setVisible(false);
     pactSkipBreak->setVisible(false);
 
-
-
-    ptrayIconMenu->addAction(pactStatistics);
     ptrayIconMenu->addAction(pactSettings);
     ptrayIconMenu->addAction(pactShowHide);
     ptrayIconMenu->addAction(pactQuit);
@@ -153,13 +148,9 @@ WTimer::WTimer(QWidget *parent) :
     Settings->move((QApplication::desktop()->width()-this->width())/2,
                    (QApplication::desktop()->height()-this->height())/2);
 
-     connect(pactSettings,SIGNAL(triggered()), Settings,SLOT(slotCheckSettings()));
-
-
-    Statistics = new statisticsDialog;
-    Statistics->hide();
-
-    connect(this,SIGNAL(signalCheckStatistics()),Statistics,SLOT(slotCheckStatistics()));
+    connect(pactSettings,SIGNAL(triggered()), Settings,SLOT(slotCheckSettings()));
+    connect(taskComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(slotSaveLastActiveTask()));
+    connect(ptrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(slotShowHide()));
 
     tasks = Settings->tasks;
 
@@ -183,6 +174,8 @@ WTimer::WTimer(QWidget *parent) :
     QString fileName = "journal/WTimer log " +
             QDateTime::currentDateTime().toString("MM yyyy") + ".txt";
     logger = new Logger(this, fileName, Settings->journalPlText);
+
+
 
 }
 
@@ -238,8 +231,9 @@ void::WTimer::slotUpdateIcon(int state,int number)
             painter.drawPixmap(0,0,64,64,fopixmap);
             QString string;
             string = QString::number(number);
-            painter.setFont(QFont("times",30, QFont::Bold));
-            QPen penHText(QColor("#000000"));
+            this->setWindowTitle("Wtimer " + string + " min");
+            painter.setFont(QFont("times",28, QFont::Bold));
+            QPen penHText(QColor("#C0C0C0"));
             painter.setPen(penHText);
             painter.drawText(0,0,64,64,Qt::AlignHCenter| Qt::AlignBottom , string);
 
@@ -254,7 +248,7 @@ void::WTimer::slotUpdateIcon(int state,int number)
 void WTimer::slotStartStop()
 {
 
-    ui->progressBar->setMaximum(timeValue.minute()*60);
+    ui->progressBar->setMaximum(WTimerDuration.minute()*60);
 
     if(!ptimer->isActive())
     {
@@ -359,7 +353,7 @@ void WTimer::slotSetDisplay()
                                         " minutes completed\n" );
         }
     }
-    else if (PopUp && this->timeValue.minute() ==1 &&this->timeValue.second() ==0)
+    else if (PopUp && this->timeValue.minute() ==0 &&this->timeValue.second() ==0)
     {
         if(Notification)soundNotification->play();
         setVisible(true);
@@ -511,16 +505,10 @@ void WTimer::slotReadSettings()
         {
             taskComboBox->addItem(tasks->at(i).taskTitle);
         }
+        taskComboBox->setCurrentIndex(lastActiveTask);
     }
+
 }
-
-
-void WTimer::slotStatistics()
-{
-    emit signalCheckStatistics();
-    this->Statistics->show();
-}
-
 
 void WTimer::slotSaveWinPos()
 {
@@ -574,6 +562,7 @@ void WTimer::slotReadTasks()
 void WTimer::slotWriteTasks()
 {
     QFile file("tasks");
+    slotSaveLastActiveTask();
     if (!file.open(QIODevice::WriteOnly))
     {
              QMessageBox::information(this, tr("Unable to open file"),
@@ -587,6 +576,7 @@ void WTimer::slotWriteTasks()
      qDebug() << "Tasks size now:  " << tasks->size();
      file.resize(file.pos());
      file.close();
+
 
 }
 
@@ -605,3 +595,9 @@ void WTimer::delay()
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 
+void WTimer::slotSaveLastActiveTask()
+{
+    /*qDebug << "savelasttask";
+    qDebug <<taskComboBox->currentIndex();*/
+    pst->setValue("lastActiveTask", taskComboBox->currentIndex());
+}

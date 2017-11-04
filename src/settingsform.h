@@ -6,6 +6,7 @@
 #include <QPlainTextEdit>
 #include <QDesktopServices>
 #include "wtimertask.h"
+#include "statisticsdialog.h"
 
 namespace Ui {
 class settingsForm;
@@ -41,6 +42,7 @@ public:
     QVector <WtimerTask> * tasks;
 
     QSettings* pst;
+    statisticsDialog* Statistics;
 
    void createTask(QString s_taskTitle);
    void deleteTask();
@@ -55,7 +57,7 @@ public slots:
     void slotOpenJournalFolder();
     void slotReadTasks();
     void slotWriteTasks();
-
+    void slotShowStatistics();
 
 
 private:

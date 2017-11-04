@@ -17,6 +17,8 @@ settingsForm::settingsForm(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->UrlLabel->setText(URL);
+    Statistics = new  statisticsDialog(0);
+    Statistics->hide();
     pst = App::theApp()->settings();
     ui->sessionDurationComboBox->clear();
     ui->breakDurationComboBox->clear();
@@ -34,12 +36,11 @@ settingsForm::settingsForm(QWidget *parent) :
     connect(ui->addTaskButton,SIGNAL(clicked()), this,SLOT(slotAddTask()));
     connect(ui->deleteTaskButton,SIGNAL(clicked()), this,SLOT(slotDeleteTask()));
     connect(ui->openJournalFolder,SIGNAL(clicked()), this, SLOT(slotOpenJournalFolder()));
-
+    connect(ui->statisticsPushButton,SIGNAL(clicked()),this,SLOT(slotShowStatistics()));
     ui->sessionDurationComboBox->addItems(lstDuration);
     ui->breakDurationComboBox->addItems(lstBreak);
     slotCheckSettings();
     journalPlText = ui->journalPlnTxt;
-
     tasks = new QVector <WtimerTask>;
 
     slotReadTasks();
@@ -212,7 +213,7 @@ void settingsForm::slotOpenJournalFolder()
 
 void settingsForm::slotReadTasks()
 {
-     QFile file("tasks");
+     QFile file("config/tasks");
       if (!file.open(QIODevice::ReadWrite))
       {
               QMessageBox::information(this, tr("Unable to open file"),
@@ -235,7 +236,7 @@ void settingsForm::slotReadTasks()
 
 void settingsForm::slotWriteTasks()
 {
-    QFile file("tasks");
+    QFile file("config/tasks");
     if (!file.open(QIODevice::WriteOnly))
     {
              QMessageBox::information(this, tr("Unable to open file"),
@@ -287,4 +288,44 @@ void settingsForm::refreshTaskList()
         ui->taskList->addItem(tasks->at(i).taskTitle);
     }
     }
+}
+void settingsForm::slotShowStatistics()
+{
+    /*
+    breakHrs = pst->value("breakHrs").toDouble();
+    breaks = pst->value("breaks").toInt();
+    hours = pst->value("hours").toDouble();
+    sessions = pst->value("sessions").toInt();
+
+*/
+    /*    double breakHrs;
+    int breaks;
+    double hours;
+    int sessions;
+
+      explicit WtimerTask(QString s_taskTitle);
+      explicit WtimerTask();
+      QString taskTitle;
+      QDate timeLast;
+      qint32 hoursOnTask;
+      qint32 hoursOnBreak;
+      QTime timeOnTask;
+      QTime timeOnBreak;
+      qint32 sessionsOnTask;
+      qint32 breaksOnTask;
+
+
+
+*/
+    //qint32 index = ui->taskList->currentRow();
+    WtimerTask stats_task = (tasks->at(ui->taskList->currentRow()));
+    Statistics->hours = stats_task.hoursOnTask;
+    Statistics->sessions = stats_task.sessionsOnTask;
+    Statistics->breaks = stats_task.breaksOnTask;
+    Statistics->breakHrs = stats_task.hoursOnBreak;
+    Statistics->slotCheckStatistics();
+    //Statistics->hours = stats_task.hoursOnTask;
+
+    Statistics->show();
+
 }

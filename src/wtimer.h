@@ -74,7 +74,7 @@ public:
 
     bool useTaskSystem;
     settingsForm* Settings;
-    statisticsDialog* Statistics;
+
 
 
     QSound* soundBreak;
@@ -88,6 +88,7 @@ public:
 
     double breakHrs;
     int breaks;
+    qint32 lastActiveTask;
     double hours;
     int sessions;
     int xPos;
@@ -110,7 +111,7 @@ protected:
     virtual void closeEvent();
 signals:
     void signalCheckSettings();
-    void signalCheckStatistics();
+
 public slots:
     void slotShowHide();
     void slotUpdateIcon(int state,int number);
@@ -121,11 +122,11 @@ public slots:
     void slotSkipABreak();
     void slotSettings();
     void slotReadSettings();
-    void slotStatistics();
     void slotSaveWinPos();
     void slotAlertAfterBreak();
     void slotReadTasks();
     void slotWriteTasks();
+    void slotSaveLastActiveTask();
     void slotQuit();
 
 private slots:

@@ -11,22 +11,7 @@ statisticsDialog::statisticsDialog(QWidget *parent) :
     ui->setupUi(this);
     pst = App::theApp()->settings();
     connect(ui->OKpushButton,SIGNAL(clicked()),this,SLOT(hide()));
-    if(pst->value("breakHrs").toDouble()==0)
-    {
-        pst->setValue("breakHrs", 0.00);
-    }
-    if(pst->value("breaks").toInt()==0)
-    {
-        pst->setValue("breaks", 0);
-    }
-    if(pst->value("hours").toDouble()==0)
-    {
-        pst->setValue("hours", 0.00);
-    }
-    if(pst->value("sessions").toInt()==0)
-    {
-        pst->setValue("sessions", 0);
-    }
+    slotCheckStatistics();
 }
 
 statisticsDialog::~statisticsDialog()
@@ -35,11 +20,6 @@ statisticsDialog::~statisticsDialog()
 }
 void statisticsDialog::slotCheckStatistics()
 {
-    breakHrs = pst->value("breakHrs").toDouble();
-    breaks = pst->value("breaks").toInt();
-    hours = pst->value("hours").toDouble();
-    sessions = pst->value("sessions").toInt();
-
     ui->breaksHrsLbl->setText("Break hours total:  " + QString::number(breakHrs));
     ui->breaksLbl->setText("Breaks total:  " + QString::number(breaks));
 
