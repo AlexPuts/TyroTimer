@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QDate>
+#include <QDataStream>
 
 class WtimerTask
 {
@@ -14,8 +15,8 @@ public:
       QDate timeLast;
       qint32 hoursOnTask;
       qint32 hoursOnBreak;
-      QTime timeOnTask;
-      QTime timeOnBreak;
+      qint32 timeOnTask;
+      qint32 timeOnBreak;
       qint32 sessionsOnTask;
       qint32 breaksOnTask;
 
@@ -26,8 +27,8 @@ inline QDataStream& operator<<( QDataStream &out, const WtimerTask& t )
 {
     out<<t.taskTitle;
     out<<t.timeLast;
-    out<<QString::number(t.hoursOnTask);
-    out<<QString::number(t.hoursOnBreak);
+    out<<t.hoursOnTask;
+    out<<t.hoursOnBreak;
     out<<t.timeOnTask;
     out<<t.timeOnBreak;
     out<<t.sessionsOnTask;
@@ -40,18 +41,13 @@ inline QDataStream& operator>>( QDataStream &in, WtimerTask& t)
 {
     in>>t.taskTitle;
     in>>t.timeLast;
-
-    QString hoursOnTask, hoursOnBreak, sessionsOnTask, breaksOnTask;
-    in>>hoursOnTask;
-    t.hoursOnTask = hoursOnTask.toInt();
-    in>>hoursOnBreak;
-    t.hoursOnBreak = hoursOnBreak.toInt();
+    in>>t.hoursOnTask;
+    in>>t.hoursOnBreak;
     in>>t.timeOnTask;
     in>>t.timeOnBreak;
-    in>>sessionsOnTask;
-    t.sessionsOnTask = sessionsOnTask.toInt();
-    in>>breaksOnTask;
-    t.breaksOnTask = breaksOnTask.toInt();
+    in>>t.sessionsOnTask;
+    in>>t.breaksOnTask;
+
 
     return in;
 }

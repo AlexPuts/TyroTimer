@@ -22,6 +22,10 @@ public:
     qint32 hours;
     qint32 sessions;
 
+    QString taskTitle;
+    QDate timeLast;
+    qint64 timeOnTask;
+    qint64 timeOnBreak;
 
     ~statisticsDialog();
 

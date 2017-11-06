@@ -289,25 +289,10 @@ void WTimer::slotStartStop()
 void WTimer::slotSetDisplay()
 {
     if(keepAlertAfterBreak) pStimer->start(60000);
-    (tasks->begin()+taskComboBox->currentIndex())->timeOnTask =
-            (tasks->begin()+taskComboBox->currentIndex())->timeOnTask.addSecs(1);
-    if((tasks->begin()+taskComboBox->currentIndex())->timeOnTask.hour() >0)
-    {
-        int minutes = (tasks->begin()+taskComboBox->currentIndex())->timeOnTask.minute();
-        int seconds = (tasks->begin()+taskComboBox->currentIndex())->timeOnTask.second();
-        (tasks->begin()+taskComboBox->currentIndex())->timeOnTask.setHMS(0,minutes,seconds,0);
-        (tasks->begin()+taskComboBox->currentIndex())->hoursOnTask++;
-    }
-    if((tasks->begin()+taskComboBox->currentIndex())->timeOnBreak.hour() >0)
-    {
-        int minutes = (tasks->begin()+taskComboBox->currentIndex())->timeOnBreak.minute();
-        int seconds = (tasks->begin()+taskComboBox->currentIndex())->timeOnBreak.second();
-        (tasks->begin()+taskComboBox->currentIndex())->timeOnBreak.setHMS(0,minutes,seconds,0);
-        (tasks->begin()+taskComboBox->currentIndex())->hoursOnBreak++;
-    }
 
-    qDebug() <<"Total time:"<< QString::number((tasks->begin()+taskComboBox->currentIndex())->hoursOnTask)+
-               ":"+(tasks->begin()+taskComboBox->currentIndex())->timeOnTask.toString("hh:mm:ss");
+    if(useTaskSystem&&!isABreak)(tasks->begin()+taskComboBox->currentIndex())->timeOnTask++;
+    else (tasks->begin()+taskComboBox->currentIndex())->timeOnBreak++;
+
     this->timeValue.setHMS(0,this->timeValue.addSecs(-1).minute(),
                            this->timeValue.addSecs(-1).second());
     this->ui->timeLabel->setText(this->timeValue.toString());
@@ -320,9 +305,11 @@ void WTimer::slotSetDisplay()
         {
             ptimer->stop();
             slotWTimerEnded();
-           if(AlertBubbleEnd) ptrayIcon->showMessage("WTimer status:",
+            if(AlertBubbleEnd) ptrayIcon->showMessage("WTimer status:",
                                      "Work session completed.",
                                      QSystemTrayIcon::Information,2200);
+
+            if(useTaskSystem)(tasks->begin()+taskComboBox->currentIndex())->sessionsOnTask++;
         }
         else
         {
@@ -351,14 +338,16 @@ void WTimer::slotSetDisplay()
                                      QSystemTrayIcon::Information,2200);
            if(keepJournal)logger->write("Break of " +QString::number(breakDuration.minute()) +
                                         " minutes completed\n" );
+           if(useTaskSystem)(tasks->begin()+taskComboBox->currentIndex())->breaksOnTask++;
+        }
+        if (PopUp)
+        {
+            if(Notification)soundNotification->play();
+            setVisible(true);
+            this->raise();
         }
     }
-    else if (PopUp && this->timeValue.minute() ==0 &&this->timeValue.second() ==0)
-    {
-        if(Notification)soundNotification->play();
-        setVisible(true);
-        this->raise();
-    }
+
     slotUpdateIcon(0,timeValue.minute());
 };
 void WTimer::slotWTimerEnded()
@@ -542,7 +531,7 @@ void WTimer::slotAlertAfterBreak()
 
 void WTimer::slotReadTasks()
 {
-     QFile file("tasks");
+     QFile file("config/tasks");
       if (!file.open(QIODevice::ReadWrite))
       {
               QMessageBox::information(this, tr("Unable to open file"),
@@ -561,8 +550,7 @@ void WTimer::slotReadTasks()
 
 void WTimer::slotWriteTasks()
 {
-    QFile file("tasks");
-    slotSaveLastActiveTask();
+    QFile file("config/tasks");
     if (!file.open(QIODevice::WriteOnly))
     {
              QMessageBox::information(this, tr("Unable to open file"),
@@ -582,6 +570,10 @@ void WTimer::slotWriteTasks()
 
 void WTimer::slotQuit()
 {
+    if(ptimer->isActive())
+    {
+        slotStartStop();
+    }
     slotSaveWinPos();
     delay();
     slotWriteTasks();
@@ -590,14 +582,12 @@ void WTimer::slotQuit()
 
 void WTimer::delay()
 {
-    QTime dieTime= QTime::currentTime().addMSecs(500);
+    QTime dieTime= QTime::currentTime().addMSecs(700);
     while (QTime::currentTime() < dieTime)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 
 void WTimer::slotSaveLastActiveTask()
 {
-    /*qDebug << "savelasttask";
-    qDebug <<taskComboBox->currentIndex();*/
     pst->setValue("lastActiveTask", taskComboBox->currentIndex());
 }

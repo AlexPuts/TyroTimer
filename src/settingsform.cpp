@@ -291,41 +291,19 @@ void settingsForm::refreshTaskList()
 }
 void settingsForm::slotShowStatistics()
 {
-    /*
-    breakHrs = pst->value("breakHrs").toDouble();
-    breaks = pst->value("breaks").toInt();
-    hours = pst->value("hours").toDouble();
-    sessions = pst->value("sessions").toInt();
-
-*/
-    /*    double breakHrs;
-    int breaks;
-    double hours;
-    int sessions;
-
-      explicit WtimerTask(QString s_taskTitle);
-      explicit WtimerTask();
-      QString taskTitle;
-      QDate timeLast;
-      qint32 hoursOnTask;
-      qint32 hoursOnBreak;
-      QTime timeOnTask;
-      QTime timeOnBreak;
-      qint32 sessionsOnTask;
-      qint32 breaksOnTask;
-
-
-
-*/
-    //qint32 index = ui->taskList->currentRow();
-    WtimerTask stats_task = (tasks->at(ui->taskList->currentRow()));
+    WtimerTask stats_task;
+    if(ui->taskList->currentRow()>=0) stats_task = (tasks->at(ui->taskList->currentRow()));
+    else return;
     Statistics->hours = stats_task.hoursOnTask;
     Statistics->sessions = stats_task.sessionsOnTask;
     Statistics->breaks = stats_task.breaksOnTask;
     Statistics->breakHrs = stats_task.hoursOnBreak;
+
+    Statistics->taskTitle = stats_task.taskTitle;
+    Statistics->timeLast = stats_task.timeLast;
+    Statistics->timeOnTask = stats_task.timeOnTask;
+    Statistics->timeOnBreak = stats_task.timeOnBreak;
+
     Statistics->slotCheckStatistics();
-    //Statistics->hours = stats_task.hoursOnTask;
-
     Statistics->show();
-
 }
