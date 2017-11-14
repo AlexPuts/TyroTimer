@@ -46,18 +46,6 @@ settingsForm::settingsForm(QWidget *parent) :
     slotReadTasks();
     refreshTaskList();
 
-    sliders.push_back(ui->uProcessHorizontalSlider);
-    sliders.push_back(ui->uBreakHorizontalSlider);
-    sliders.push_back(ui->uSessionCompleteHorizontalSlider);
-    sliders.push_back(ui->uBreakCompleteHorizontalSlider);
-    sliders.push_back(ui->uNotificationHorizontalSlider);
-
-    foreach (QSlider* slider, sliders)
-    {
-            slider->setMaximum(100);
-            slider->setMinimum(0);
-    }
-
 }
 void settingsForm::slotSendSettings()
 {
@@ -102,15 +90,12 @@ void settingsForm::slotSendSettings()
     pst->setValue("keepAlertAfterBreak", skeepAlertAfterBreak);
     pst->setValue("keepWindowPos", skeepWindowPos);
     pst->setValue("startMinimized", sstartMinimized);
+
     pst->setValue("timerControlsInTrMenu",stimerControlsInTrMenu);
+
     pst->setValue("useTaskSystem",suseTaskSystem);
 
-    pst->setValue("uProcess", uProcess);
-    pst->setValue("uBreak", uBreak);
-    pst->setValue("uSessionComplete",uSessionComplete);
-    pst->setValue("uBreakComplete",uBreakComplete);
-    pst->setValue("uNotification",uNotification);
-
+    //qApp->exit(10000);
     ui->labelStatus->clear();
     emit saveSettings();
     this->hide();
@@ -155,46 +140,7 @@ void settingsForm::slotCheckSettings()
     if((pst->value("keepWindowPos").toBool())) ui->keepWinPosChk->setCheckState(Qt::Checked);
     if((pst->value("startMinimized").toBool())) ui->startMinChk->setCheckState(Qt::Checked);
     if((pst->value("timerControlsInTrMenu").toBool())) ui->timerControlsInTrMenuChk->setCheckState(Qt::Checked);
-    if((pst->value("useTaskSystem").toBool())) ui->useTasksChk->setCheckState(Qt::Checked);
-
-    //set default URLs for sounds
-    if((pst->value("uProcess").toString()).isEmpty()) uProcess = (QUrl::fromLocalFile("/sounds/process.wav"));
-    if((pst->value("uBreak").toString()).isEmpty()) uBreak = (QUrl::fromLocalFile("/sounds/break.wav"));
-    if((pst->value("uSessionComplete").toString()).isEmpty()) uSessionComplete = (QUrl::fromLocalFile("/sounds/complete.wav"));
-    if((pst->value("uBreakComplete").toString()).isEmpty()) uBreakComplete = (QUrl::fromLocalFile("/sounds/complete.wav"));
-    if((pst->value("uNotification").toString()).isEmpty()) uNotification = (QUrl::fromLocalFile("/sounds/notification.wav"));
-
-
-    uProcess = (QUrl::fromLocalFile(pst->value("uProcess").toString()));
-    uBreak = (QUrl::fromLocalFile(pst->value("uBreak").toString()));
-    uSessionComplete = (QUrl::fromLocalFile(pst->value("uSessionComplete").toString()));
-    uBreakComplete = (QUrl::fromLocalFile(pst->value("uBreakComplete").toString()));
-    uNotification = (QUrl::fromLocalFile(pst->value("uNotification").toString()));
-
-    ui->uProcessLineEdit->setText(uProcess.toString());
-    ui->uBreakLineEdit->setText(uBreak.toString());
-    ui->uSessionCompleteLineEdit->setText(uSessionComplete.toString());
-    ui->uBreakCompleteLineEdit->setText(uBreakComplete.toString());
-    ui->uNotificationLineEdit->setText(uNotification.toString());
-
-
-    ui->uProcessHorizontalSlider->setValue(vProcess = pst->value("uProcess").toInt());
-    ui->uBreakHorizontalSlider->setValue(vProcess = pst->value("uBreak").toInt());
-    ui->uSessionCompleteHorizontalSlider->setValue(vProcess = pst->value("uSessionComplete").toInt());
-    ui->uBreakCompleteHorizontalSlider->setValue(vProcess = pst->value("uBreak").toInt());
-    ui->uNotificationHorizontalSlider->setValue(vProcess = pst->value("uNotification").toInt());
-
-
-    ui->uProcessHorizontalSlider->setValue(vProcess = pst->value("uProcess").toInt());
-    ui->uBreakHorizontalSlider->setValue(vProcess = pst->value("uBreak").toInt());
-    ui->uSessionCompleteHorizontalSlider->setValue(vProcess = pst->value("uSessionComplete").toInt());
-    ui->uBreakCompleteHorizontalSlider->setValue(vProcess = pst->value("uBreak").toInt());
-    ui->uNotificationHorizontalSlider->setValue(vProcess = pst->value("uNotification").toInt());
-
-
-//qint8 vProcess,vBreak,vSessionComplete,vBreakComplete,vNotification
-
-
+    if((pst->value("useTaskSystem",suseTaskSystem).toBool())) ui->useTasksChk->setCheckState(Qt::Checked);
 }
 
 settingsForm::~settingsForm()

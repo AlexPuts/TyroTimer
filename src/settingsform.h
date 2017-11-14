@@ -7,9 +7,6 @@
 #include <QDesktopServices>
 #include "wtimertask.h"
 #include "statisticsdialog.h"
-#include <QMediaPlayer>
-#include <QUrl>
-#include <QSlider>
 
 namespace Ui {
 class settingsForm;
@@ -43,14 +40,13 @@ public:
     bool suseTaskSystem;
 
     QVector <WtimerTask> * tasks;
-    QVector <QSlider*> sliders;
+
     QSettings* pst;
     statisticsDialog* Statistics;
-    QUrl uProcess,uBreak,uSessionComplete,uBreakComplete,uNotification;
-    int vProcess,vBreak,vSessionComplete,vBreakComplete,vNotification;
-    void createTask(QString s_taskTitle);
-    void deleteTask();
-    void refreshTaskList();
+
+   void createTask(QString s_taskTitle);
+   void deleteTask();
+   void refreshTaskList();
 
     ~settingsForm();
 public slots:
