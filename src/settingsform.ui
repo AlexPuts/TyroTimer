@@ -63,7 +63,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -177,7 +177,7 @@
       <attribute name="title">
        <string>Notification</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -224,6 +224,19 @@
          </layout>
         </item>
         <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
            <widget class="QLabel" name="label">
@@ -234,75 +247,10 @@
           </item>
           <item>
            <layout class="QGridLayout" name="gridLayout_3">
-            <item row="0" column="0">
-             <widget class="QCheckBox" name="processSoundChk">
-              <property name="text">
-               <string>Process</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="lineEdit"/>
-            </item>
-            <item row="0" column="2">
-             <widget class="QPushButton" name="pushButton_2">
-              <property name="text">
-               <string>Open</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="3">
-             <widget class="QSlider" name="horizontalSlider">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QCheckBox" name="breakSoundChk">
-              <property name="text">
-               <string>Break</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="lineEdit_2"/>
-            </item>
-            <item row="1" column="2">
-             <widget class="QPushButton" name="pushButton_3">
-              <property name="text">
-               <string>Open</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="3">
-             <widget class="QSlider" name="horizontalSlider_2">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
             <item row="2" column="0">
              <widget class="QCheckBox" name="completeSoundChk">
               <property name="text">
                <string>Session complete</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="lineEdit_3"/>
-            </item>
-            <item row="2" column="2">
-             <widget class="QPushButton" name="pushButton_4">
-              <property name="text">
-               <string>Open</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="3">
-             <widget class="QSlider" name="horizontalSlider_3">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>
@@ -313,23 +261,6 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="lineEdit_4"/>
-            </item>
-            <item row="3" column="2">
-             <widget class="QPushButton" name="pushButton_5">
-              <property name="text">
-               <string>Open</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="3">
-             <widget class="QSlider" name="horizontalSlider_4">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
             <item row="4" column="0">
              <widget class="QCheckBox" name="notificationChk">
               <property name="text">
@@ -337,20 +268,17 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="1">
-             <widget class="QLineEdit" name="lineEdit_5"/>
-            </item>
-            <item row="4" column="2">
-             <widget class="QPushButton" name="pushButton">
+            <item row="0" column="0">
+             <widget class="QCheckBox" name="processSoundChk">
               <property name="text">
-               <string>Open</string>
+               <string>Process</string>
               </property>
              </widget>
             </item>
-            <item row="4" column="3">
-             <widget class="QSlider" name="horizontalSlider_5">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="breakSoundChk">
+              <property name="text">
+               <string>Break</string>
               </property>
              </widget>
             </item>
@@ -544,8 +472,8 @@
             </font>
            </property>
            <property name="text">
-            <string>WTimer is a free timer application for applying Pomodoro 
-Technique.  If you have a lot of work to get done WTimer is a way 
+            <string>TyroTimer is a free timer application for applying Pomodoro 
+Technique.  If you have a lot of work to get done TyroTimer is a way 
 to go! Created and developed by Alex Putz.</string>
            </property>
           </widget>

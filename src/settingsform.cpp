@@ -1,7 +1,7 @@
 #include "src/settingsform.h"
 #include "ui_settingsform.h"
 #include "src/app.h"
-#include "src/wtimertask.h"
+#include "src/tyrotimertask.h"
 
 #include <QSettings>
 #include <QDesktopServices>
@@ -9,7 +9,7 @@
 #include <QMessageBox>
 #include <QDebug>
 
-const QString URL = "<a href = ""https://github.com/AlexPutz/WTimer"">https://github.com/AlexPutz/WTimer</a>";
+const QString URL = "<a href = ""https://github.com/AlexPutz/TyroTimer"">https://github.com/AlexPutz/TyroTimer</a>";
 
 settingsForm::settingsForm(QWidget *parent) :
     QWidget(parent),
@@ -41,7 +41,7 @@ settingsForm::settingsForm(QWidget *parent) :
     ui->breakDurationComboBox->addItems(lstBreak);
     slotCheckSettings();
     journalPlText = ui->journalPlnTxt;
-    tasks = new QVector <WtimerTask>;
+    tasks = new QVector <TyroTimerTask>;
 
     slotReadTasks();
     refreshTaskList();
@@ -72,7 +72,7 @@ void settingsForm::slotSendSettings()
     stimerControlsInTrMenu = ui->timerControlsInTrMenuChk->isChecked();
     suseTaskSystem = ui->useTasksChk->isChecked();
 
-    pst->setValue("WTimerDuration", cDuration);
+    pst->setValue("TyroTimerDuration", cDuration);
     pst->setValue("breakDuration", cBreak);
     pst->setValue("soundInProcess", sProcess);
     pst->setValue("soundInBreak", sBreak);
@@ -122,7 +122,7 @@ void settingsForm::slotCheckSettings()
 
 
 
-    ui->sessionDurationComboBox->setCurrentIndex((((pst->value("WTimerDuration").toInt())/60)/5)-1);
+    ui->sessionDurationComboBox->setCurrentIndex((((pst->value("TyroTimerDuration").toInt())/60)/5)-1);
     ui->breakDurationComboBox->setCurrentIndex((((pst->value("breakDuration").toInt())/60)/5)-1);
     if((pst->value("soundInProcess").toBool())) ui->processSoundChk->setCheckState(Qt::Checked);
     if((pst->value("soundInBreak").toBool())) ui->breakSoundChk->setCheckState(Qt::Checked);
@@ -228,7 +228,7 @@ void settingsForm::slotReadTasks()
        qDebug() << "Tasks size now:  " <<tasks->size();
        if(tasks->size() == 0)
        {
-           tasks->push_back(WtimerTask("Default"));
+           tasks->push_back(TyroTimerTask("Default"));
        }
        file.close();
 
@@ -255,7 +255,7 @@ void settingsForm::slotWriteTasks()
 
 void settingsForm::createTask(QString s_taskTitle)
 {
-    WtimerTask newtask(s_taskTitle);
+    TyroTimerTask newtask(s_taskTitle);
     tasks->push_back(newtask);
     qDebug() << "Added new task : " << newtask.taskTitle;
     qDebug() << "Tasks total quantity : " << tasks->size();
@@ -291,7 +291,7 @@ void settingsForm::refreshTaskList()
 }
 void settingsForm::slotShowStatistics()
 {
-    WtimerTask stats_task;
+    TyroTimerTask stats_task;
     if(ui->taskList->currentRow()>=0) stats_task = (tasks->at(ui->taskList->currentRow()));
     else return;
     Statistics->hours = stats_task.hoursOnTask;

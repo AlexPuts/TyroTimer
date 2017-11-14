@@ -5,7 +5,7 @@
 #include <QSettings>
 #include <QPlainTextEdit>
 #include <QDesktopServices>
-#include "wtimertask.h"
+#include "tyrotimertask.h"
 #include "statisticsdialog.h"
 
 namespace Ui {
@@ -39,7 +39,7 @@ public:
     bool stimerControlsInTrMenu;
     bool suseTaskSystem;
 
-    QVector <WtimerTask> * tasks;
+    QVector <TyroTimerTask> * tasks;
 
     QSettings* pst;
     statisticsDialog* Statistics;

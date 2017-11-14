@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include "src/app.h"
-#include "src/wtimertask.h"
+#include "src/tyrotimertask.h"
 
 namespace Ui {
 class statisticsDialog;
