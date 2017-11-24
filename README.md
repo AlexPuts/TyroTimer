@@ -1,5 +1,5 @@
-# WTimer
-WTimer is a desktop application timer for applying Pomodoro Technique.(Qt, C++)
+# TyroTimer
+TyroTimer is a desktop application timer for applying Pomodoro Technique.(Qt, C++)
 
 
 
