@@ -213,7 +213,7 @@ void settingsForm::slotOpenJournalFolder()
 
 void settingsForm::slotReadTasks()
 {
-     QFile file("config/tasks");
+     QFile file("config/tasks.tsk");
       if (!file.open(QIODevice::ReadWrite))
       {
               QMessageBox::information(this, tr("Unable to open file"),
@@ -236,7 +236,7 @@ void settingsForm::slotReadTasks()
 
 void settingsForm::slotWriteTasks()
 {
-    QFile file("config/tasks");
+    QFile file("config/tasks.tsk");
     if (!file.open(QIODevice::WriteOnly))
     {
              QMessageBox::information(this, tr("Unable to open file"),

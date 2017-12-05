@@ -3,8 +3,17 @@
 # Project created by QtCreator 2017-08-05T13:53:01
 #
 #-------------------------------------------------
+install_sounds.path = $$OUT_PWD/sounds/
+install_sounds.files =$$files(sounds/*.wav)
 
-QT       += core gui
+install_config.path = $$OUT_PWD/config/
+install_config.files =$$files(config/*)
+
+INSTALLS += \
+    install_sounds\
+    install_config
+
+QT += core gui
 QT += multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -47,4 +56,5 @@ FORMS += \
 
 RESOURCES += \
     resources.qrc
+
 

@@ -150,7 +150,7 @@ TyroTimer::TyroTimer(QWidget *parent) :
 
     connect(pactSettings,SIGNAL(triggered()), Settings,SLOT(slotCheckSettings()));
     connect(taskComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(slotSaveLastActiveTask()));
-    connect(ptrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(slotShowHide()));
+    //connect(ptrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(slotShowHide()));
 
     tasks = Settings->tasks;
 
@@ -531,7 +531,7 @@ void TyroTimer::slotAlertAfterBreak()
 
 void TyroTimer::slotReadTasks()
 {
-     QFile file("config/tasks");
+     QFile file("config/tasks.tsk");
       if (!file.open(QIODevice::ReadWrite))
       {
               QMessageBox::information(this, tr("Unable to open file"),
@@ -550,7 +550,7 @@ void TyroTimer::slotReadTasks()
 
 void TyroTimer::slotWriteTasks()
 {
-    QFile file("config/tasks");
+    QFile file("config/tasks.tsk");
     if (!file.open(QIODevice::WriteOnly))
     {
              QMessageBox::information(this, tr("Unable to open file"),
